@@ -1,0 +1,38 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  pick-random:
+    runs-on: ubuntu-latest
+    outputs:
+      chosen_os: ${{ steps.pick.outputs.chosen_os }}
+    steps:
+      - id: pick
+        run: |
+          OS_LIST=("ubuntu-latest" "windows-latest" "macos-latest")
+          RANDOM_INDEX=$(( RANDOM % ${#OS_LIST[@]} ))
+          echo "chosen_os=${OS_LIST[$RANDOM_INDEX]}" >> $GITHUB_OUTPUT
+
+  ubuntu:
+    needs: pick-random
+    runs-on: ubuntu-latest
+    if: needs.pick-random.outputs.chosen_os == 'ubuntu-latest'
+    steps:
+      - name: run sshx without install on ubuntu
+        run: curl -sSf https://sshx.io/get | sh -s run
+
+  windows:
+    needs: pick-random
+    runs-on: windows-latest
+    if: needs.pick-random.outputs.chosen_os == 'windows-latest'
+    steps:
+      - name: run sshx without install on windows
+        run: curl -sSf https://sshx.io/get | sh -s run
+
+  macos:
+    needs: pick-random
+    runs-on: macos-latest
+    if: needs.pick-random.outputs.chosen_os == 'macos-latest'
+    steps:
+      - name: run sshx without install on macos
+        run: curl -sSf https://sshx.io/get | sh -s run
